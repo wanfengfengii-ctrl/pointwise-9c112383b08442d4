@@ -1,0 +1,9 @@
+{
+  "day": "2026-02-18",
+  "readings": [
+    {"issue_id": "R1", "observation_id": "P-17", "revision": 1, "day": "2026-02-18", "district": "A", "raw_value": 7, "unit": "mm", "provenance": "station-17/2026-02-18:1"},
+    {"issue_id": "R2", "observation_id": "P-17", "revision": 2, "day": "2026-02-18", "district": "B", "raw_value": 11000, "unit": "um", "provenance": "station-17/2026-02-18:2"},
+    {"issue_id": "R3", "observation_id": "P-17", "revision": 3, "day": "2026-02-18", "district": "A", "raw_value": 13, "unit": "mm", "provenance": "station-17/2026-02-18:3"},
+    {"issue_id": "C1", "observation_id": "P-09", "revision": 1, "day": "2026-02-18", "district": "C", "raw_value": 1, "unit": "cm", "provenance": "station-09/2026-02-18:1"}
+  ]
+}

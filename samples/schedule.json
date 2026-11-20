@@ -1,0 +1,4 @@
+[
+  {"warehouse_id": "lagged", "deliveries": [["R1", "reply"], ["R3", "reply"], ["C1", "reply"]]},
+  {"warehouse_id": "lost", "deliveries": [["R1", "reply"], ["R2", "drop"], ["R3", "reply"], ["C1", "reply"]]}
+]

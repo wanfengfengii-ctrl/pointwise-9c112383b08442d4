@@ -1,0 +1,26 @@
+{
+  "journals": {
+    "lagged": {
+      "ledger": [["target", "A", 7, 1, 1, null], ["reversal", "A", -7, 1, 2, 1], ["target", "A", 13, 3, 2, null], ["target", "C", 10, 1, 3, null]],
+      "partitions": [["A", 13, 13], ["C", 10, 10]],
+      "target_origin": "station-17/2026-02-18:3",
+      "reversal_origin": "station-17/2026-02-18:1"
+    },
+    "lost": {
+      "ledger": [["target", "A", 7, 1, 1, null], ["reversal", "A", -7, 1, 2, 1], ["target", "B", 11, 2, 2, null], ["reversal", "B", -11, 2, 3, 2], ["target", "A", 13, 3, 3, null], ["target", "C", 10, 1, 4, null]],
+      "partitions": [["A", 13, 13], ["B", 0, 0], ["C", 10, 10]],
+      "target_origin": "station-17/2026-02-18:3",
+      "reversal_origin": "station-17/2026-02-18:2"
+    }
+  },
+  "downstream": {
+    "lagged": {
+      "statuses": [["R1", "acknowledged"], ["R3", "acknowledged"], ["C1", "acknowledged"]],
+      "retried": [["R2", "stale", null]], "daily_net_mm": 23, "reconciles": true
+    },
+    "lost": {
+      "statuses": [["R1", "acknowledged"], ["R2", "pending"], ["R3", "acknowledged"], ["C1", "acknowledged"]],
+      "retried": [["R2", "acknowledged", 2]], "daily_net_mm": 23, "reconciles": true
+    }
+  }
+}
