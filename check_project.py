@@ -1,6 +1,10 @@
-"""Run this project's full unittest suite from the repository root."""
+"""Run this project's full unittest suite and the managed joint verification."""
+import subprocess
 import sys
 import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
 
 
 def main():
@@ -23,7 +27,16 @@ def main():
           f'expected_failures={len(result.expectedFailures)} '
           f'unexpected_successes={len(result.unexpectedSuccesses)} '
           f'result={"PASS" if successful else "FAIL"}')
-    return 0 if successful else 1
+    if not successful:
+        return 1
+    for mode in ('v1', 'managed'):
+        print(f'MANAGED EXAMPLES {mode}')
+        completed = subprocess.run(
+            [sys.executable, '-B', str(ROOT / 'managed_examples.py'), mode], cwd=ROOT)
+        if completed.returncode != 0:
+            print(f'managed_examples.py {mode} failed with {completed.returncode}')
+            return completed.returncode
+    return 0
 
 
 if __name__ == '__main__':

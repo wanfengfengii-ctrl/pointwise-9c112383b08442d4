@@ -5,6 +5,13 @@ from lake.posting.eligibility import PostingConflict, StaleRevision
 from lake.release.register import ReleaseNotFound
 
 
+def __getattr__(name):
+    if name in ('begin_managed', 'get_managed', 'record_managed_reply'):
+        from lake.delivery import managed
+        return getattr(managed, name)
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
+
+
 def send(queue: ShipmentQueue, warehouse, issue_id, register=None, transport=None):
     warehouse_id = warehouse.warehouse_id
     shipment = queue.get_shipment(warehouse_id, issue_id)

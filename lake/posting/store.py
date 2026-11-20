@@ -4,6 +4,7 @@ from lake.obs.dimensions import require_text
 from lake.obs.units import format_integer, parse_integer
 from lake.posting.eligibility import PostingConflict
 from lake.posting.entries import LedgerEntry
+from lake.posting.outcomes import ManagedOutcomes
 from lake.posting.receipts import make_receipt
 from lake.release.envelope import decode_release, encode_release
 from lake.sqlite import open_database, transaction
@@ -45,6 +46,16 @@ CREATE TABLE IF NOT EXISTS issue_receipts (
     issue_id TEXT PRIMARY KEY NOT NULL,
     receipt_id INTEGER NOT NULL REFERENCES postings (receipt_id)
 );
+CREATE TABLE IF NOT EXISTS managed_outcomes (
+    attempt_id TEXT PRIMARY KEY NOT NULL,
+    warehouse_id TEXT NOT NULL,
+    issue_id TEXT NOT NULL,
+    wire TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('acknowledged', 'closed')),
+    receipt_id INTEGER REFERENCES postings (receipt_id),
+    CHECK ((status = 'acknowledged' AND receipt_id IS NOT NULL)
+        OR (status = 'closed' AND receipt_id IS NULL))
+);
 '''
 
 _RECEIPT_QUERY = '''
@@ -73,6 +84,7 @@ class JournalStore:
         self._db = open_database(path, timeout)
         try:
             self._db.executescript(_SCHEMA)
+            self.managed_outcomes = ManagedOutcomes(self._db)
             with self.write_transaction():
                 self._db.execute('''
                     INSERT INTO warehouse (slot, warehouse_id) VALUES (1, ?)

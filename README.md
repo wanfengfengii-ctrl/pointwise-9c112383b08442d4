@@ -9,9 +9,11 @@
 ```text
 python3 -B check_project.py
 python3 -B -m lake demo
+python3 -B managed_examples.py v1
+python3 -B managed_examples.py managed
 ```
 
-`check_project.py` 由运行平台提供，执行 `tests` 包内的完整确定性回归。在只有源码的副本中也可运行 `python3 -B -m unittest discover -v`。演示在测试临时目录初始化三个库角色，从 `samples/upstream.json` 载入原读，用 `samples/schedule.json` 安排两条独立的复核仓历史，对照 `samples/hand-ledger.json` 的逐笔手算及查回结果。
+`check_project.py` 由运行平台提供，执行 `tests` 包内的完整确定性回归。在只有源码的副本中也可运行 `python3 -B -m unittest discover -v`。演示在测试临时目录初始化三个库角色，从 `samples/upstream.json` 载入原读，用 `samples/schedule.json` 安排两条独立的复核仓历史，对照 `samples/hand-ledger.json` 的逐笔手算及查回结果。`managed_examples.py` 按 `MANAGED.md` 核验 V1 两条历史与受管投递的三条历史、改绑/错配/提交失败联合核验。
 
 ## 一天的工作
 
@@ -31,6 +33,7 @@ python3 -B -m lake demo
 | 源库 | `lake.obs.store.RevisionStore(path)` 持有源库；`lake.obs.intake.record(source, observation_id, revision, day, district, raw_value, unit, provenance)` 返回不可变 `ObservationRevision`。同参复用，异参抛 `RevisionConflict`，输入错误抛 `ValueError`。 |
 | 冻结 | `lake.release.register.ReleaseRegister(source)` 使用源库；`lake.release.freeze.freeze(source, register, issue_id, observation_id, revision)` 返回 `FrozenRelease`。同号同参复用，同号异参抛 `ReleaseConflict`，缺失源修订抛 `RevisionNotFound`。`get_frozen(issue_id)` 返回原编码或 `None`。 |
 | 暂存和投递 | `lake.delivery.queue.ShipmentQueue(path)` 持有分发库；`enqueue(warehouse_id, issue_id, wire)` 固定原件，重复入队保留处理状态。`lake.delivery.dispatch.send(queue, warehouse, issue_id, register=None, transport=None)` 返回 `AttemptResult`。未暂存时可给登记簿以完成首次暂存。`lake.delivery.retry.retry_pending(queue, warehouse, transport=None)` 依入队顺序查回待投和待查件。 |
+| 受管投递 | `lake.delivery.dispatch.begin_managed(queue, warehouse, issue_id)` 对已暂存发行登记新尝试并返回四字段 `packet`（未暂存抛 `LookupError`，每次发起身份不同）；`get_managed(queue, attempt_id)` 重开后按号重领 `(packet, reply)`；`record_managed_reply(queue, attempt_id, reply)` 回记终局，`None` 表示回包未知，错配或矛盾抛 `ValueError` 且保留原记录。仓端 `lake.posting.accept.accept_managed(warehouse, packet)` 按 V1 口径过账或幂等接纳并同次提交该次终局，`settle_managed(warehouse, packet)` 返回该次实际首执或在未接纳时永久 `closed`。改绑、目标仓不符、冻结件无效均抛 `PostingConflict`，提交失败抛 `PostingCommitError` 并可凭原绑定重试。 |
 | 过账 | `lake.posting.store.JournalStore(path, warehouse_id, timeout=5.0)` 打开或创建指定复核仓；重开核对仓标识。`lake.posting.accept.accept(warehouse, wire)` 提交后返回 `Receipt`，或者抛 `PostingConflict`、`StaleRevision`、`PostingCommitError`。 |
 | 核账 | `lake.audit.balances.balance(warehouse, day, district=None)` 返回有序分录和净额；`lake.audit.receipt_view.receipt(warehouse, receipt_id)` 返回原冻结证据、当次分录及可选原账证，未知号返回 `None`；`lake.audit.reconcile.reconcile(warehouse, day)` 返回各分区逐笔净额和有效正项合计。 |
 

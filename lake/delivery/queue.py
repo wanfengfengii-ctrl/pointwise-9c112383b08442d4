@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from lake.delivery.attempts import AttemptLog
+from lake.delivery.managed import ManagedAttemptLog
 from lake.delivery.results import AttemptResult
 from lake.obs.dimensions import require_text
 from lake.release.envelope import release_issue_id
@@ -43,6 +44,7 @@ class ShipmentQueue:
                 )
             ''')
             self.attempts = AttemptLog(self._db)
+            self.managed = ManagedAttemptLog(self._db)
         except BaseException:
             self.close()
             raise
